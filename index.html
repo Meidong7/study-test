@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中外合作办学择校深度自测 - 3小时免费咨询版</title>
+    <style>
+        :root { --primary: #2c3e50; --accent: #e67e22; --bg: #f4f7f6; --success: #27ae60; --text: #34495e; }
+        body { font-family: 'PingFang SC', 'Helvetica Neue', sans-serif; background: var(--bg); color: var(--text); padding: 20px; line-height: 1.6; }
+        .container { max-width: 650px; margin: 0 auto; background: white; padding: 40px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); position: relative; }
+        h1 { text-align: center; font-size: 24px; color: var(--primary); margin-bottom: 5px; }
+        .subtitle { text-align: center; font-size: 14px; color: #7f8c8d; margin-bottom: 30px; }
+        .progress-container { margin-bottom: 35px; }
+        .progress-bar { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #e67e22, #f39c12); width: 0%; transition: width 0.4s ease; }
+        .step-info { font-size: 13px; color: #95a5a6; margin-top: 8px; text-align: right; font-weight: 500; }
+        .question-title { font-size: 19px; font-weight: 600; margin-bottom: 25px; min-height: 60px; color: var(--primary); }
+        .options-list { list-style: none; padding: 0; }
+        .option-item { 
+            background: #fff; border: 2px solid #f0f2f5; margin-bottom: 14px; padding: 18px; 
+            border-radius: 14px; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center;
+        }
+        .option-item:hover { border-color: #d1d9e0; background: #fafbfc; transform: translateY(-1px); }
+        .option-item.selected { border-color: var(--accent); background: #fffaf5; box-shadow: 0 4px 15px rgba(230, 126, 34, 0.15); }
+        .option-item::before { content: ""; width: 20px; height: 20px; border: 2px solid #cbd5e0; border-radius: 50%; margin-right: 15px; flex-shrink: 0; }
+        .option-item.selected::before { border-color: var(--accent); background: var(--accent); box-shadow: inset 0 0 0 4px white; }
+        .btn-group { display: flex; justify-content: space-between; margin-top: 40px; gap: 20px; }
+        button { flex: 1; padding: 16px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        #prev-btn { background: #f0f2f5; color: #7f8c8d; }
+        #prev-btn:disabled { opacity: 0; cursor: default; }
+        #next-btn { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(44, 62, 80, 0.2); }
+        #next-btn.finish { background: var(--success); }
+        #result-page { display: none; text-align: center; animation: fadeIn 0.6s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .res-title { font-size: 28px; color: var(--primary); margin-bottom: 25px; font-weight: 800; }
+        .res-content { text-align: left; background: #fdfdfd; padding: 25px; border: 1px solid #eee; border-radius: 16px; margin-bottom: 25px; }
+        .warning-box { color: #e74c3c; font-size: 14px; font-weight: bold; margin-top: 15px; display: none; text-align: center; }
+        .share-hint { margin-top: 25px; font-size: 13px; color: #999; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="quiz-page">
+        <h1>中外合作办学择校深度自测</h1>
+        <p class="subtitle">专业留学顾问建议方案 · 30题全面评估</p>
+        <div class="progress-container">
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+            <div class="step-info" id="step-info">第 1 / 30 题</div>
+        </div>
+        <div class="question-title" id="q-title">正在载入测评系统...</div>
+        <div class="options-list" id="options-container"></div>
+        <div class="warning-box" id="warning">⚠️ 请选择一个选项后再继续。</div>
+        <div class="btn-group">
+            <button id="prev-btn" onclick="goPrev()">上一题</button>
+            <button id="next-btn" onclick="goNext()">下一题</button>
+        </div>
+    </div>
+
+    <div id="result-page">
+        <div style="background: var(--accent); color: white; padding: 10px 25px; border-radius: 50px; display: inline-block; margin-bottom: 20px; font-weight: bold;">测评结果深度分析</div>
+        <div class="res-title" id="res-type"></div>
+        <div class="res-content" id="res-desc"></div>
+        <button onclick="location.reload()" style="background:var(--primary); color:white; width: 200px;">重新测评</button>
+        <p class="share-hint">觉得有用？点击右上角分享给同样在纠结择校的朋友。</p>
+        <p style="margin-top: 20px; font-size: 12px; color: #999;">© 2026 研究院专业选型中心</p>
+    </div>
+</div>
+
+<script>
+    // 此处包含之前所有的30道题目数据
+    const questions = [
+        { q: "你的高考预计分数段（或目前模考水平）？", a: "稳过一本线/优投线，冲击211水平", b: "一本线上下浮动，追求稳健本科", c: "二本段位，希望寻求弯道超车", d: "分数不理想，主要考虑自主招生/计划外" },
+        { q: "你的英语基础（高考/雅思/托福）？", a: "极其优秀，能听懂全英讲座", b: "较好(高考120+)，但缺乏听说环境", c: "一般，能应付考试但口语表达吃力", d: "较差，需要从基础语言课补起" },
+        { q: "你对“大学专业”的确定性如何？", a: "目标极其明确，不接受任何专业调剂", b: "有大类方向（如商科），可接受微调", c: "还没想好，希望大一有探索空间", d: "只要学校名气大，专业无所谓" },
+        { q: "你对硕士阶段的规划是？", a: "必须冲刺全球前50的顶级名校", b: "申研排名在100左右也能接受", c: "视本科情况决定，不排除回国考研", d: "本科毕业想直接在国内外就业" },
+        { q: "你的自主学习习惯更接近哪种？", a: "高度自律，习惯任务驱动和独立研究", b: "较好，但在高压下更容易爆发出潜力", c: "依赖老师督促，喜欢传统课堂模式", d: "比较散漫，需要外部环境高强度约束" },
+        { q: "你更偏好哪种教学模式？", a: "全英文环境、高频讨论与演讲汇报", b: "中英双语过渡，逐步适应外教课", c: "传统中文教学为主，外教课为辅", d: "不关心模式，只要能顺利拿证就行" },
+        { q: "你对“名校光环”的执着程度？", a: "非世界名校不读，看重母校声誉", b: "看重性价比，学校排名中等即可", c: "看重国内大学的名气，便于国内就业", d: "只要是正规本科学历即可" },
+        { q: "面对多元文化的适应能力如何？", a: "好奇心爆表，极度渴望融入异国文化", b: "愿意尝试，但需要一定的心理建设期", c: "比较保守，更喜欢留在华人圈子", d: "完全不关心文化，只在乎学习结果" },
+        { q: "你每年的学费预算上限（不含生活费）？", a: "30万以上（追求全球顶尖资源）", b: "15-30万（主流中产稳健型）", c: "5-15万（追求高性价比）", d: "5万以下（经济敏感型）" },
+        { q: "你对“海外停留时长”的心理期待？", a: "越长越好，最好能在国外待3年以上", b: "2年刚刚好，兼顾国内外人脉（2+2）", c: "1年即可，为了拿个学历认证（3+1）", d: "最好全程在国内，省钱省心（4+0）" },
+        { q: "你对毕业后进入“体制内”的执着度？", a: "完全不考虑，目标是外企或创业", b: "随缘，但希望保留考公/考编的资格", c: "非常看重，必须有国内全日制学籍", d: "家族要求，必须拿到国内全套证件" },
+        { q: "面对“学历认证”政策波动的态度？", a: "只要学校足够好，愿意承担一定风险", b: "必须100%稳妥，不能有任何灰色地带", c: "只要大部分学长能办下来我就接受", d: "没想过，希望中介能全权包办风险" },
+        { q: "你如何看待大学期间的“校友人脉”？", a: "希望结交全球高净值的精英群体", b: "希望兼具国内高校圈与海外留学生圈", c: "只要有同校校友即可，不在乎层级", d: "不看重，文凭是唯一的硬通货" },
+        { q: "如果你心仪的项目在偏远校区，你会？", a: "只要资源好，地理位置无所谓", b: "犹豫，更倾向于主校区的氛围", c: "介意，担心影响实习和就业机会", d: "无所谓，甚至觉得偏远点干扰少" },
+        { q: "你对“社区大学”作为跳板的看法？", a: "高阶曲线救国，只要能申到名校就行", b: "作为备选项，可以考虑", c: "觉得不够体面，心理上有些抵触", d: "坚决不选，只要正规四年制大学" },
+        { q: "你对毕业后第一份工作的紧迫感？", a: "不急，打算继续深造或GAP探索", b: "希望在毕业前拿大厂实习Offer", c: "希望尽快回生源地找个稳妥工作", d: "只要能拿到学位证就行，不担心就业" },
+        { q: "当你进入一个新环境，你倾向于？", a: "主动出击，寻找规则并尝试优化它", b: "观察他人，确保自己动作准确合规", c: "寻找志同道合的小伙伴，建立圈子", d: "专注任务本身，按部就班完成工作" },
+        { q: "在团队合作中，你最擅长的角色是？", a: "决策者：负责方向把控和说服他人", b: "分析师：负责数据收集与逻辑论证", c: "粘合剂：负责化解冲突和情绪支持", d: "执行官：负责查漏补缺和按时交付" },
+        { q: "面对复杂的全英文教材和演示（PPT）？", a: "感到兴奋，这是展现自我的机会", b: "有压力，但可以作为锻炼去克服", c: "感到痛苦，宁愿参加传统的闭卷考", d: "极度恐惧，会想尽办法寻求代劳" },
+        { q: "当你处理问题时，动力源于？", a: "攻克前人未解决的难题带来的成就", b: "获得权威专家或高标准的评价认可", c: "帮助团队成员达成共同目标的喜悦", d: "完成清单上所有待办事项的确定感" },
+        { q: "当教授的规则模糊时，你会？", a: "快速适应并在模糊中寻找机会空间", b: "感到焦虑，必须咨询获得明确指令", c: "询问周围人的意见，随大流操作", d: "停滞不前，等待具体的截止日期" },
+        { q: "你处理冲突时的第一反应是？", a: "直接辩论，直到达成共识或胜出", b: "搜集证据，通过逻辑分析谁对谁错", c: "主动退让，为了保持团队的和谐", d: "交给规则处理，不带入个人情感" },
+        { q: "你学习新知识的最快路径是？", a: "在实践和挑战中自我总结规律", b: "阅读大量文献和案例，深入钻研", c: "与他人讨论，在交流中获得启发", d: "跟随老师的步骤，反复练习模仿" },
+        { q: "面对突如其来的压力？", a: "肾上腺素飙升，效率反而最高", b: "制定严密计划，按分钟进行拆解", c: "寻求外界支持，分担压力感", d: "感到瘫痪，容易陷入严重的焦虑" },
+        { q: "若录取不理想，但有计划外名校项目？", a: "果断选择计划外，追求更高文凭", b: "纠结，会详细核查认证后再决定", c: "还是倾向于更稳妥的国内统招普本", d: "考虑复读一年，不愿尝试新路径" },
+        { q: "是否愿意读一年不计入本科学分的预科？", a: "愿意，作为适应海外环境的缓冲", b: "看情况，如果预科含金量高就去", c: "嫌浪费时间，希望直接入读专业课", d: "坚决不读，觉得是变相乱收费" },
+        { q: "若项目不在主校区而在研究院/分院？", a: "只要师资共享，完全不介意", b: "在意校园氛围，会实地考察后再定", c: "比较介意，觉得像是在读“二等公民”", d: "不介意，只要证书和主校区一样" },
+        { q: "当教授有严重地方口音？", a: "积极适应，将其视为多元文化训练", b: "录音回听，努力克服听力障碍", c: "感到沮丧，可能会选择放弃这门课", d: "向学校投诉，要求更换标准的英语" },
+        { q: "你最喜欢的评价（打分）方式是？", a: "论文+演讲+项目实践（无标准答案）", b: "作业+小测+期末考试（平稳过渡）", c: "纯末期大考（一考定乾坤）", d: "考勤+学习态度（只要努力就有分）" },
+        { q: "你择校的终极驱动力是？", a: "实现阶层跃迁，改变人生天花板", b: "获取名校光环，提升个人品牌力", c: "稳妥拿个本科学位，给父母交代", d: "逃避高考竞争，寻找轻松路径" }
+    ];
+
+    let currentStep = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+
+    function renderStep() {
+        const q = questions[currentStep];
+        document.getElementById('q-title').innerText = `${currentStep + 1}. ${q.q}`;
+        document.getElementById('step-info').innerText = `第 ${currentStep + 1} / ${questions.length} 题`;
+        document.getElementById('progress-fill').style.width = `${((currentStep + 1) / questions.length) * 100}%`;
+        document.getElementById('warning').style.display = 'none';
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        ['A', 'B', 'C', 'D'].forEach(key => {
+            const div = document.createElement('div');
+            div.className = `option-item ${userAnswers[currentStep] === key ? 'selected' : ''}`;
+            div.innerText = `${key}. ${q[key.toLowerCase()]}`;
+            div.onclick = () => { userAnswers[currentStep] = key; renderStep(); };
+            container.appendChild(div);
+        });
+        document.getElementById('prev-btn').disabled = currentStep === 0;
+        document.getElementById('next-btn').innerText = currentStep === questions.length - 1 ? '查看深度测评结果' : '下一题';
+    }
+
+    function goNext() {
+        if (!userAnswers[currentStep]) { document.getElementById('warning').style.display = 'block'; return; }
+        if (currentStep < questions.length - 1) { currentStep++; renderStep(); } else { showResult(); }
+    }
+
+    function goPrev() { if (currentStep > 0) { currentStep--; renderStep(); } }
+
+    function showResult() {
+        document.getElementById('quiz-page').style.display = 'none';
+        document.getElementById('result-page').style.display = 'block';
+        window.scrollTo(0,0);
+        const counts = { A: 0, B: 0, C: 0, D: 0 };
+        userAnswers.forEach(ans => counts[ans]++);
+        let max = 'A';
+        if (counts.B >= counts.A && counts.B >= counts.C && counts.B >= counts.D) max = 'B';
+        if (counts.C >= counts.A && counts.C >= counts.B && counts.C >= counts.D) max = 'C';
+        if (counts.D >= counts.A && counts.D >= counts.B && counts.D >= counts.C) max = 'D';
+
+        const results = {
+            A: { t: "学术精英型 · 战略领航者", d: "你具备极强的全球化潜质与学术野心。你不怕规则模糊，甚至擅长在挑战中建立优势。首选具有独立法人资格的中外合作大学或顶级名校项目。" },
+            B: { t: "稳健求索型 · 逻辑分析师", d: "你是一个理性的决策者，既渴望国际视野，又需要明确的安全边际。统招计划内项目（如2+2或4+0双证项目）是你的最佳选择。" },
+            C: { t: "务实转换型 · 敏捷执行者", d: "你擅长在复杂环境中寻找性价比最高的跃迁路径。合规的计划外自主招生项目（如3+1、4+0）非常适合你。" },
+            D: { t: "风险敏感型 · 秩序守护者", d: "你非常看重环境的稳定性和秩序感。建议优先选择全内地的 4+0 模式（计划内），或者回归国内传统统招路径。" }
+        };
+
+        document.getElementById('res-type').innerText = results[max].t;
+        document.getElementById('res-desc').innerHTML = `
+            <p>${results[max].d}</p>
+            <hr style='margin:20px 0; border:0; border-top:1px dashed #ddd;'>
+            <p style='font-size:15px; color:#e67e22; font-weight:bold;'>📢 顾问私房话：</p>
+            <p style='font-size:14px; color:#34495e;'>基于您的回答，您的职业性格展现出极强的“<strong>${max === 'A' ? '统筹' : (max === 'B' ? '审慎' : (max === 'C' ? '成就' : '交往'))}</strong>”特质。</p>
+            <div style='background:#fff4e6; padding:15px; border-radius:10px; margin-top:10px; border:1px solid #ffd8a8; text-align: left;'>
+                <p style='margin:0; font-size:14px; color:#d9480f;'>🎉 <strong>限时福利：</strong></p>
+                <p style='margin:5px 0 0 0; font-size:14px; line-height:1.5;'>恭喜完成自测！凭借此测评结果截图，您可获得 <strong>3小时以内免费咨询</strong>。我们将针对您的自测结果，为您进行深度排雷与升学路径解读。</p>
+                <p style='margin:12px 0 0 0; font-size:16px; color:#2c3e50;'><strong>📞 咨询添加微信：wmcx123456</strong></p>
+            </div>
+        `;
+    }
+    renderStep();
+</script>
+</body>
+</html>
